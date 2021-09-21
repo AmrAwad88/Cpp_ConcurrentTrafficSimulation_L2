@@ -12,7 +12,6 @@ Vehicle::Vehicle()
     _speed = 400; // m/s
 }
 
-
 void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination)
 {
     // update destination
@@ -74,13 +73,23 @@ void Vehicle::drive()
             // check wether halting position in front of destination has been reached
             if (completion >= 0.9 && !hasEnteredIntersection)
             {
-                // Task L2.1 : Start up a task using std::async which takes a reference to the method Intersection::addVehicleToQueue, 
-                // the object _currDestination and a shared pointer to this using the get_shared_this() function. 
+                // Task L2.1 : Start up a task using std::async which takes a reference to the method Intersection::addVehicleToQueue,
+                // the object _currDestination and a shared pointer to this using the get_shared_this() function.
                 // Then, wait for the data to be available before proceeding to slow down.
 
+                // Amr: Parent Thread is Vehicle::Drive, Child (Worker) Thread is Intersection::addVehicleToQueue
+                auto ftr = std::async(&Intersection::addVehicleToQueue, _currDestination, get_shared_this());
+
+                //auto status = ftr.wait_for(std::chrono::milliseconds(10000)); // Give einough timeout for Intersection::addVehicleToQueue
+                //if (status == std::future_status::ready)                    // result is ready
+                //{
                 // slow down and set intersection flag
+                ftr.get(); // Amr: it blocks this thread till the child thread gives the permission
+
+                // Amr: if these two lines are commented out, the veicle(s) will not deaccelrate and they will continue driving without a halt
                 _speed /= 10.0;
                 hasEnteredIntersection = true;
+                //}
             }
 
             // check wether intersection has been crossed
@@ -102,9 +111,9 @@ void Vehicle::drive()
                     // this street is a dead-end, so drive back the same way
                     nextStreet = _currStreet;
                 }
-                
+
                 // pick the one intersection at which the vehicle is currently not
-                std::shared_ptr<Intersection> nextIntersection = nextStreet->getInIntersection()->getID() == _currDestination->getID() ? nextStreet->getOutIntersection() : nextStreet->getInIntersection(); 
+                std::shared_ptr<Intersection> nextIntersection = nextStreet->getInIntersection()->getID() == _currDestination->getID() ? nextStreet->getOutIntersection() : nextStreet->getInIntersection();
 
                 // send signal to intersection that vehicle has left the intersection
                 _currDestination->vehicleHasLeft(get_shared_this());

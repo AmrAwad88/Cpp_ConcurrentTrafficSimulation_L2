@@ -23,9 +23,15 @@ void WaitingVehicles::pushBack(std::shared_ptr<Vehicle> vehicle, std::promise<vo
 
 void WaitingVehicles::permitEntryToFirstInQueue()
 {
-    // L2.3 : First, get the entries from the front of _promises and _vehicles. 
+    // L2.3 : First, get the entries from the front of _promises and _vehicles.
     // Then, fulfill promise and send signal back that permission to enter has been granted.
-    // Finally, remove the front elements from both queues. 
+    // Finally, remove the front elements from both queues.
+    if (_vehicles.size() > 0)
+    {
+        _promises[0].set_value();           // Amr: This is how to set a void promise
+        _vehicles.erase(_vehicles.begin());
+        _promises.erase(_promises.begin());
+    }
 }
 
 /* Implementation of class "Intersection" */
@@ -61,9 +67,14 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
 {
     std::cout << "Intersection #" << _id << "::addVehicleToQueue: thread id = " << std::this_thread::get_id() << std::endl;
 
-    // L2.2 : First, add the new vehicle to the waiting line by creating a promise, a corresponding future and then adding both to _waitingVehicles. 
-    // Then, wait until the vehicle has been granted entry. 
+    // L2.2 : First, add the new vehicle to the waiting line by creating a promise, a corresponding future and then adding both to _waitingVehicles.
+    // Then, wait until the vehicle has been granted entry.
 
+    // Amr: Parent Thread is Intersection::addVehicleToQueue, Child (Worker) Thread is WaitingVehicles::permitEntryToFirstInQueue
+    std::promise<void> prms;
+    std::future<void> ftr = prms.get_future();
+    _waitingVehicles.pushBack(vehicle, std::move(prms));
+    ftr.get();
     std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID() << " is granted entry." << std::endl;
 }
 
