@@ -23,8 +23,8 @@ You can find these tasks in the project_tasks.txt within the workspace as well.
 
 ### Build Instructions
 To compile and run the code, create a build directory and use cmake and make as follows: \
-../L1_Project# mkdir build \
-../L1_Project# cd build \
-../L1_Project/build# cmake .. \
-../L1_Project/build# make \
-../L1_Project/build# ./traffic_simulation
+../L2_Project# mkdir build \
+../L2_Project# cd build \
+../L2_Project/build# cmake .. \
+../L2_Project/build# make \
+../L2_Project/build# ./traffic_simulation
