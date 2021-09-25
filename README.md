@@ -22,7 +22,7 @@ https://stackoverflow.com/questions/40656871/remove-from-the-beginning-of-stdvec
 You can find these tasks in the project_tasks.txt within the workspace as well.
 
 ### Build Instructions
-To compile and run the code, create a build directory and use cmake and make as follows:
+To compile and run the code, create a build directory and use cmake and make as follows: \
 ../L1_Project# mkdir build \
 ../L1_Project# cd build \
 ../L1_Project/build# cmake .. \
